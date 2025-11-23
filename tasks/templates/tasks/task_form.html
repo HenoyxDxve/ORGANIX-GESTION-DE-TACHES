@@ -1,0 +1,595 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+  :root {
+    --primary-color: #6366f1;
+    --primary-hover: #4f46e5;
+    --success-color: #10b981;
+    --danger-color: #ef4444;
+    --bg-light: #f8fafc;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 25px rgba(0,0,0,0.12);
+  }
+
+  body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  .form-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 1rem;
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Header Section */
+  .form-header {
+    background: white;
+    border-radius: 20px 20px 0 0;
+    padding: 2rem;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .form-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, var(--primary-color), #8b5cf6);
+  }
+
+  .form-title {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .form-subtitle {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin: 0.5rem 0 0 0;
+  }
+
+  /* Form Body */
+  .form-body {
+    background: white;
+    padding: 2rem;
+    border-radius: 0 0 20px 20px;
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Form Groups */
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group label {
+    display: block;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+  }
+
+  .form-group label::after {
+    content: ' *';
+    color: var(--danger-color);
+    font-weight: 700;
+  }
+
+  .form-group.optional label::after {
+    content: '';
+  }
+
+  /* Input Styles */
+  .form-control,
+  .form-select,
+  .form-textarea {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background-color: white;
+    font-family: inherit;
+  }
+
+  .form-control:focus,
+  .form-select:focus,
+  .form-textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  }
+
+  .form-textarea {
+    min-height: 120px;
+    resize: vertical;
+    line-height: 1.6;
+  }
+
+  /* Checkbox */
+  .checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: var(--bg-light);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .checkbox-wrapper:hover {
+    background: #e0e7ff;
+  }
+
+  .checkbox-wrapper input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: var(--primary-color);
+  }
+
+  .checkbox-label {
+    font-weight: 500;
+    color: #1e293b;
+    cursor: pointer;
+    margin: 0;
+  }
+
+  /* Grid Layout for Form Fields */
+  .form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  /* Help Text */
+  .helptext {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+  }
+
+  /* Error Messages */
+  .errorlist {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0 0 0;
+  }
+
+  .errorlist li {
+    color: var(--danger-color);
+    font-size: 0.875rem;
+    padding: 0.5rem;
+    background: #fef2f2;
+    border-left: 3px solid var(--danger-color);
+    border-radius: 6px;
+    margin-top: 0.5rem;
+  }
+
+  /* Buttons */
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--border-color);
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 0.875rem 2rem;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    justify-content: center;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
+    color: white;
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+  }
+
+  .btn-secondary {
+    background: white;
+    color: var(--text-muted);
+    border: 2px solid var(--border-color);
+    flex: 0.5;
+    min-width: 150px;
+  }
+
+  .btn-secondary:hover {
+    background: var(--bg-light);
+    border-color: var(--text-muted);
+    transform: translateY(-2px);
+  }
+
+  /* Input Icons */
+  .input-wrapper {
+    position: relative;
+  }
+
+  .input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    color: var(--text-muted);
+  }
+
+  .input-wrapper .form-control,
+  .input-wrapper .form-select {
+    padding-left: 3rem;
+  }
+
+  /* Priority & Status Preview */
+  .preview-badges {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--bg-light);
+    border-radius: 12px;
+    flex-wrap: wrap;
+  }
+
+  .preview-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .badge-high {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  .badge-medium {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+
+  .badge-low {
+    background: #f1f5f9;
+    color: #475569;
+  }
+
+  .badge-done {
+    background: #d1fae5;
+    color: #065f46;
+  }
+
+  .badge-progress {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .badge-todo {
+    background: #e0e7ff;
+    color: #3730a3;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .form-container {
+      margin: 1rem auto;
+    }
+
+    .form-header,
+    .form-body {
+      padding: 1.5rem;
+    }
+
+    .form-title {
+      font-size: 1.5rem;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+      flex-direction: column;
+    }
+
+    .btn {
+      width: 100%;
+      min-width: unset;
+    }
+  }
+
+  /* Loading State */
+  .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-primary:disabled:hover {
+    transform: none;
+    box-shadow: none;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+  <form method="post" id="taskForm">
+    {% csrf_token %}
+    
+    <!-- Header -->
+    <div class="form-header">
+      <h1 class="form-title">
+        {% if form.instance.pk %}
+          <span>✏️</span>
+          <span>Modifier la tâche</span>
+        {% else %}
+          <span>➕</span>
+          <span>Créer une nouvelle tâche</span>
+        {% endif %}
+      </h1>
+      <p class="form-subtitle">
+        {% if form.instance.pk %}
+          Mettez à jour les informations de votre tâche
+        {% else %}
+          Remplissez les informations pour créer une nouvelle tâche
+        {% endif %}
+      </p>
+    </div>
+
+    <!-- Form Body -->
+    <div class="form-body">
+      <!-- Title Field -->
+      <div class="form-group">
+        <label for="{{ form.title.id_for_label }}">📝 Titre de la tâche</label>
+        <div class="input-wrapper">
+          <input 
+            type="text" 
+            name="{{ form.title.name }}" 
+            id="{{ form.title.id_for_label }}"
+            class="form-control"
+            placeholder="Ex: Finir le rapport mensuel"
+            value="{{ form.title.value|default:'' }}"
+            required
+          >
+        </div>
+        {% if form.title.errors %}
+          <ul class="errorlist">
+            {% for error in form.title.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+
+      <!-- Description Field -->
+      <div class="form-group optional">
+        <label for="{{ form.description.id_for_label }}">📄 Description</label>
+        <textarea 
+          name="{{ form.description.name }}"
+          id="{{ form.description.id_for_label }}"
+          class="form-textarea"
+          placeholder="Décrivez votre tâche en détail..."
+        >{{ form.description.value|default:'' }}</textarea>
+        <span class="helptext">Optionnel - Ajoutez des détails supplémentaires</span>
+        {% if form.description.errors %}
+          <ul class="errorlist">
+            {% for error in form.description.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+
+      <!-- Status & Priority Row -->
+      <div class="form-row">
+        <!-- Status Field -->
+        <div class="form-group">
+          <label for="{{ form.status.id_for_label }}">📊 Statut</label>
+          <select 
+            name="{{ form.status.name }}"
+            id="{{ form.status.id_for_label }}"
+            class="form-select"
+          >
+            <option value="todo" {% if form.status.value == 'todo' %}selected{% endif %}>À faire</option>
+            <option value="in_progress" {% if form.status.value == 'in_progress' %}selected{% endif %}>En cours</option>
+            <option value="done" {% if form.status.value == 'done' %}selected{% endif %}>Terminée</option>
+          </select>
+          {% if form.status.errors %}
+            <ul class="errorlist">
+              {% for error in form.status.errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+
+        <!-- Priority Field -->
+        <div class="form-group">
+          <label for="{{ form.priority.id_for_label }}">⚡ Priorité</label>
+          <select 
+            name="{{ form.priority.name }}"
+            id="{{ form.priority.id_for_label }}"
+            class="form-select"
+          >
+            <option value="low" {% if form.priority.value == 'low' %}selected{% endif %}>Faible</option>
+            <option value="medium" {% if form.priority.value == 'medium' %}selected{% endif %}>Moyenne</option>
+            <option value="high" {% if form.priority.value == 'high' %}selected{% endif %}>Haute</option>
+          </select>
+          {% if form.priority.errors %}
+            <ul class="errorlist">
+              {% for error in form.priority.errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Due Date Field -->
+      <div class="form-group optional">
+        <label for="{{ form.due_date.id_for_label }}">📅 Date d'échéance</label>
+        <input 
+          type="date"
+          name="{{ form.due_date.name }}"
+          id="{{ form.due_date.id_for_label }}"
+          class="form-control"
+          value="{{ form.due_date.value|date:'Y-m-d'|default:'' }}"
+        >
+        <span class="helptext">Optionnel - Définissez une date limite</span>
+        {% if form.due_date.errors %}
+          <ul class="errorlist">
+            {% for error in form.due_date.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+
+      <!-- Reminder Settings -->
+      {% if form.enable_reminder %}
+      <div class="form-row">
+        <div class="form-group optional">
+          <div class="checkbox-wrapper">
+            <input 
+              type="checkbox"
+              name="{{ form.enable_reminder.name }}"
+              id="{{ form.enable_reminder.id_for_label }}"
+              {% if form.enable_reminder.value %}checked{% endif %}
+            >
+            <label for="{{ form.enable_reminder.id_for_label }}" class="checkbox-label">
+              🔔 Activer les rappels par email
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group optional">
+          <label for="{{ form.reminder_days_before.id_for_label }}">⏰ Rappel (jours avant)</label>
+          <input 
+            type="number"
+            name="{{ form.reminder_days_before.name }}"
+            id="{{ form.reminder_days_before.id_for_label }}"
+            class="form-control"
+            value="{{ form.reminder_days_before.value|default:1 }}"
+            min="1"
+            max="30"
+          >
+          <span class="helptext">Entre 1 et 30 jours avant l'échéance</span>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Action Buttons -->
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">
+          {% if form.instance.pk %}
+            <span>💾</span>
+            <span>Enregistrer les modifications</span>
+          {% else %}
+            <span>➕</span>
+            <span>Créer la tâche</span>
+          {% endif %}
+        </button>
+        <a class="btn btn-secondary" href="{% url 'task_list' %}">
+          <span>↩️</span>
+          <span>Annuler</span>
+        </a>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  // Form validation and UX improvements
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('taskForm');
+    const submitBtn = form.querySelector('.btn-primary');
+    
+    // Prevent double submission
+    form.addEventListener('submit', function() {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span>⏳</span><span>Enregistrement...</span>';
+    });
+
+    // Auto-resize textarea
+    const textarea = form.querySelector('.form-textarea');
+    if (textarea) {
+      textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+      });
+    }
+
+    // Date validation - no past dates for new tasks
+    const dueDateInput = form.querySelector('input[type="date"]');
+    if (dueDateInput && !dueDateInput.value) {
+      const today = new Date().toISOString().split('T')[0];
+      dueDateInput.setAttribute('min', today);
+    }
+
+    // Toggle reminder settings based on checkbox
+    const reminderCheckbox = document.querySelector('input[name="enable_reminder"]');
+    const reminderDaysInput = document.querySelector('input[name="reminder_days_before"]');
+    
+    if (reminderCheckbox && reminderDaysInput) {
+      function toggleReminderDays() {
+        reminderDaysInput.disabled = !reminderCheckbox.checked;
+        reminderDaysInput.closest('.form-group').style.opacity = reminderCheckbox.checked ? '1' : '0.5';
+      }
+      
+      toggleReminderDays();
+      reminderCheckbox.addEventListener('change', toggleReminderDays);
+    }
+  });
+</script>
+{% endblock %}

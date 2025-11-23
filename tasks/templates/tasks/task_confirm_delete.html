@@ -1,0 +1,321 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+  :root {
+    --primary-color: #6366f1;
+    --danger-color: #ef4444;
+    --danger-hover: #dc2626;
+    --bg-light: #f8fafc;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 25px rgba(0,0,0,0.12);
+  }
+
+  body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .delete-container {
+    max-width: 600px;
+    width: 100%;
+    margin: 2rem;
+    animation: slideIn 0.4s ease-out;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .delete-card {
+    background: white;
+    border-radius: 24px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    position: relative;
+    animation: slideIn 0.4s ease-out, shake 0.5s ease-out 0.4s;
+  }
+
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%,60% { transform: translateX(-5px); }
+    40%,80% { transform: translateX(5px); }
+  }
+
+  .delete-header {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    padding: 2.5rem 2rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .delete-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--danger-color), #dc2626);
+  }
+
+  .warning-icon {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, var(--danger-color), #dc2626);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.5rem;
+    margin: 0 auto 1.5rem;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  .delete-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #991b1b;
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  .delete-content { padding: 2.5rem 2rem; }
+
+  .warning-message p {
+    font-size: 1.125rem;
+    color: #475569;
+    margin-bottom: 1rem;
+  }
+
+  .task-info {
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+    border-left: 4px solid var(--danger-color);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin: 1.5rem 0;
+  }
+
+  .task-title-display {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+
+  .task-meta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+
+  .meta-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: white;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #64748b;
+  }
+
+  /* Alert */
+  .alert-box {
+    background: #fef3c7;
+    border: 2px solid #fbbf24;
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .alert-text strong {
+    color: #92400e;
+    margin-bottom: 0.25rem;
+  }
+
+  /* Consequences */
+  .consequences {
+    background: var(--bg-light);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  .consequences h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .consequences ul { padding: 0; list-style: none; }
+
+  .consequences li {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .consequences li:last-child { border-bottom: none; }
+
+  .consequences li::before { content: "⚠️"; }
+
+  /* Buttons */
+  .delete-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .btn {
+    flex: 1;
+    padding: 1rem;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .btn-danger {
+    background: linear-gradient(135deg, var(--danger-color), #dc2626);
+    color: white;
+  }
+
+  .btn-secondary {
+    background: white;
+    border: 1px solid var(--border-color);
+    color: #475569;
+  }
+
+  @media (max-width: 640px) {
+    .delete-actions { flex-direction: column-reverse; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="delete-container">
+  <div class="delete-card">
+
+    <!-- Header -->
+    <div class="delete-header">
+      <div class="warning-icon">⚠️</div>
+      <h1 class="delete-title">Zone Dangereuse</h1>
+    </div>
+
+    <!-- Content -->
+    <div class="delete-content">
+      <div class="warning-message">
+        <p>Vous êtes sur le point de supprimer définitivement cette tâche :</p>
+      </div>
+
+      <div class="task-info">
+        <h2 class="task-title-display">{{ task.title }}</h2>
+
+        {% if task.description or task.due_date or task.priority %}
+        <div class="task-meta">
+          {% if task.priority %}
+          <span class="meta-badge">
+            {% if task.priority == 'high' %} 🔴 Priorité haute
+            {% elif task.priority == 'medium' %} 🔵 Priorité moyenne
+            {% else %} ⚪ Priorité faible
+            {% endif %}
+          </span>
+          {% endif %}
+
+          {% if task.due_date %}
+          <span class="meta-badge">📅 {{ task.due_date|date:"d M Y" }}</span>
+          {% endif %}
+
+          {% if task.status %}
+          <span class="meta-badge">
+            📊
+            {% if task.status == 'done' %}Terminée
+            {% elif task.status == 'in_progress' %}En cours
+            {% else %}À faire{% endif %}
+          </span>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Alert -->
+      <div class="alert-box">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-text">
+          <strong>Action irréversible !</strong>
+          <p>Toutes les données associées seront perdues.</p>
+        </div>
+      </div>
+
+      <!-- Consequences -->
+      <div class="consequences">
+        <h3>📋 Ce qui sera supprimé :</h3>
+        <ul>
+          <li>Le titre et la description</li>
+          <li>La priorité et la date d’échéance</li>
+          <li>L’historique de la tâche</li>
+          <li>Les rappels programmés</li>
+        </ul>
+      </div>
+
+      <!-- Actions -->
+      <form method="post" id="deleteForm">
+        {% csrf_token %}
+        <div class="delete-actions">
+          <a href="{% url 'task_list' %}" class="btn btn-secondary">↩️ Annuler</a>
+          <button type="submit" class="btn btn-danger" id="deleteBtn">
+            🗑️ Confirmer la suppression
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const form = document.getElementById("deleteForm");
+  const deleteBtn = document.getElementById("deleteBtn");
+
+  form.addEventListener("submit", function(e) {
+    {% if task.priority == 'high' %}
+      const confirmed = confirm("⚠️ Tâche à haute priorité. Confirmer ?");
+      if (!confirmed) {
+        e.preventDefault();
+        return;
+      }
+    {% endif %}
+
+    deleteBtn.disabled = true;
+    deleteBtn.innerHTML = "⏳ Suppression...";
+  });
+
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") {
+      window.location.href = "{% url 'task_list' %}";
+    }
+  });
+});
+</script>
+{% endblock %}

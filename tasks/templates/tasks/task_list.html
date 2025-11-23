@@ -1,0 +1,756 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+  :root {
+    --primary-color: #6366f1;
+    --primary-hover: #4f46e5;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --info-color: #3b82f6;
+    --bg-light: #f8fafc;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 25px rgba(0,0,0,0.12);
+  }
+
+  body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  .main-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+
+  /* Header Section */
+  .page-header {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-lg);
+    animation: slideDown 0.5s ease-out;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .page-title {
+    font-size: 2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  /* Filter Section */
+  .filter-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .filter-group {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    flex: 1;
+    min-width: 250px;
+  }
+
+  .form-select {
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background-color: white;
+    cursor: pointer;
+  }
+
+  .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    outline: none;
+  }
+
+  .btn {
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+  }
+
+  .btn-add {
+    background: linear-gradient(135deg, var(--success-color), #059669);
+    color: white;
+    font-size: 1rem;
+  }
+
+  .btn-add:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+  }
+
+  /* Stats Bar - Design Carré Amélioré */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    min-height: 180px;
+    transition: all 0.3s ease;
+    animation: fadeInUp 0.5s ease-out backwards;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+  }
+
+  .stat-card.stat-total::before {
+    background: linear-gradient(90deg, #3b82f6, #2563eb);
+  }
+
+  .stat-card.stat-progress::before {
+    background: linear-gradient(90deg, #f59e0b, #d97706);
+  }
+
+  .stat-card.stat-done::before {
+    background: linear-gradient(90deg, #10b981, #059669);
+  }
+
+  .stat-card.stat-priority::before {
+    background: linear-gradient(90deg, #ef4444, #dc2626);
+  }
+
+  .stat-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+
+  .stat-card.stat-total .stat-icon-wrapper {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  }
+
+  .stat-card.stat-progress .stat-icon-wrapper {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+  }
+
+  .stat-card.stat-done .stat-icon-wrapper {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+  }
+
+  .stat-card.stat-priority .stat-icon-wrapper {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+  }
+
+  .stat-number {
+    font-size: 3.5rem;
+    font-weight: 900;
+    line-height: 1;
+    margin: 0.5rem 0;
+    background: linear-gradient(135deg, #1e293b, #475569);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stat-card.stat-total .stat-number {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stat-card.stat-progress .stat-number {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stat-card.stat-done .stat-number {
+    background: linear-gradient(135deg, #10b981, #059669);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stat-card.stat-priority .stat-number {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stat-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Task Cards */
+  .tasks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .task-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    animation: fadeInUp 0.5s ease-out backwards;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .task-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .task-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), #8b5cf6);
+  }
+
+  .task-card.priority-high::before {
+    background: linear-gradient(90deg, var(--danger-color), #dc2626);
+  }
+
+  .task-card.priority-medium::before {
+    background: linear-gradient(90deg, var(--warning-color), #d97706);
+  }
+
+  .task-card.priority-low::before {
+    background: linear-gradient(90deg, var(--text-muted), #475569);
+  }
+
+  .task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 1rem;
+    gap: 1rem;
+  }
+
+  .task-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    flex: 1;
+    line-height: 1.4;
+  }
+
+  .status-badge {
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .status-done {
+    background: #d1fae5;
+    color: #065f46;
+  }
+
+  .status-in-progress {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .status-todo {
+    background: #e0e7ff;
+    color: #3730a3;
+  }
+
+  .task-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: var(--bg-light);
+    border-radius: 12px;
+  }
+
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  .meta-icon {
+    font-size: 1.1rem;
+  }
+
+  .priority-badge {
+    padding: 0.3rem 0.75rem;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .priority-high {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  .priority-medium {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+
+  .priority-low {
+    background: #f1f5f9;
+    color: #475569;
+  }
+
+  .task-description {
+    color: #475569;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    flex-grow: 1;
+  }
+
+  .task-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: auto;
+  }
+
+  .btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    border-radius: 10px;
+    flex: 1;
+    min-width: fit-content;
+    justify-content: center;
+  }
+
+  .btn-edit {
+    background: #f0f9ff;
+    color: var(--info-color);
+    border: 2px solid #bfdbfe;
+  }
+
+  .btn-edit:hover {
+    background: var(--info-color);
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  .btn-delete {
+    background: #fef2f2;
+    color: var(--danger-color);
+    border: 2px solid #fecaca;
+  }
+
+  .btn-delete:hover {
+    background: var(--danger-color);
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  .btn-toggle {
+    background: #f0fdf4;
+    color: var(--success-color);
+    border: 2px solid #bbf7d0;
+  }
+
+  .btn-toggle:hover {
+    background: var(--success-color);
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  /* Empty State */
+  .empty-state {
+    background: white;
+    border-radius: 20px;
+    padding: 4rem 2rem;
+    text-align: center;
+    box-shadow: var(--shadow-md);
+    animation: fadeInUp 0.5s ease-out;
+  }
+
+  .empty-icon {
+    font-size: 5rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.3;
+  }
+
+  .empty-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+  }
+
+  .empty-text {
+    color: var(--text-muted);
+    font-size: 1rem;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .main-container {
+      padding: 1rem;
+    }
+
+    .page-header {
+      padding: 1.5rem;
+      border-radius: 16px;
+    }
+
+    .page-title {
+      font-size: 1.5rem;
+    }
+
+    .filter-section {
+      flex-direction: column;
+    }
+
+    .filter-group {
+      width: 100%;
+      min-width: unset;
+    }
+
+    .form-select {
+      width: 100%;
+    }
+
+    .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .tasks-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .task-actions {
+      flex-direction: column;
+    }
+
+    .btn-sm {
+      width: 100%;
+    }
+
+    .stats-bar {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stat-number {
+      font-size: 2.8rem;
+    }
+
+    .stat-icon-wrapper {
+      width: 70px;
+      height: 70px;
+      font-size: 2rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .page-title {
+      font-size: 1.25rem;
+    }
+
+    .task-title {
+      font-size: 1.1rem;
+    }
+
+    .stats-bar {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Animation Delays */
+  .task-card:nth-child(1) { animation-delay: 0.1s; }
+  .task-card:nth-child(2) { animation-delay: 0.2s; }
+  .task-card:nth-child(3) { animation-delay: 0.3s; }
+  .task-card:nth-child(4) { animation-delay: 0.4s; }
+  .task-card:nth-child(5) { animation-delay: 0.5s; }
+  .task-card:nth-child(6) { animation-delay: 0.6s; }
+
+  .stat-card:nth-child(1) { animation-delay: 0.1s; }
+  .stat-card:nth-child(2) { animation-delay: 0.2s; }
+  .stat-card:nth-child(3) { animation-delay: 0.3s; }
+  .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+  /* Counter Animation */
+  @keyframes countUp {
+    from {
+      transform: scale(0.5);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .stat-number {
+    animation: countUp 0.6s ease-out backwards;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="main-container">
+  <!-- Statistics Bar avec Design Carré -->
+   
+  <div class="stats-bar">
+    <div class="stat-card stat-total">
+      <div class="stat-icon-wrapper">📊</div>
+      <div class="stat-number">{{ tasks|length }}</div>
+      <p class="stat-label">Total des tâches</p>
+    </div>
+    
+    <div class="stat-card stat-progress">
+      <div class="stat-icon-wrapper">⏳</div>
+      <div class="stat-number">{{ tasks_in_progress_count|default:0 }}</div>
+      <p class="stat-label">En cours</p>
+    </div>
+    
+    <div class="stat-card stat-done">
+      <div class="stat-icon-wrapper">✅</div>
+      <div class="stat-number">{{ tasks_done_count|default:0 }}</div>
+      <p class="stat-label">Terminées</p>
+    </div>
+    
+    <div class="stat-card stat-priority">
+      <div class="stat-icon-wrapper">🔥</div>
+      <div class="stat-number">{{ tasks_high_priority_count|default:0 }}</div>
+      <p class="stat-label">Priorité haute</p>
+    </div>
+  </div>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+      <h1 class="page-title">
+        <span>📋</span>
+        <span>Mes Tâches</span>
+      </h1>
+      <a href="{% url 'task_create' %}" class="btn btn-add">
+        <span>➕</span>
+        <span>Nouvelle tâche</span>
+      </a>
+    </div>
+
+    <!-- Filters -->
+    <form method="get" class="filter-section">
+      <div class="filter-group">
+        <select name="sort" class="form-select">
+          <option value="due_date" {% if sort == 'due_date' %}selected{% endif %}>📅 Par échéance</option>
+          <option value="priority" {% if sort == 'priority' %}selected{% endif %}>⚡ Par priorité</option>
+          <option value="status" {% if sort == 'status' %}selected{% endif %}>📊 Par statut</option>
+          <option value="created" {% if sort == 'created' %}selected{% endif %}>🕐 Par création</option>
+        </select>
+        
+        <select name="order" class="form-select">
+          <option value="asc" {% if order == 'asc' %}selected{% endif %}>↑ Croissant</option>
+          <option value="desc" {% if order == 'desc' %}selected{% endif %}>↓ Décroissant</option>
+        </select>
+
+        <select name="filter_status" class="form-select">
+          <option value="">Tous les statuts</option>
+          <option value="todo" {% if filter_status == 'todo' %}selected{% endif %}>À faire</option>
+          <option value="in_progress" {% if filter_status == 'in_progress' %}selected{% endif %}>En cours</option>
+          <option value="done" {% if filter_status == 'done' %}selected{% endif %}>Terminées</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary" type="submit">
+        <span>🔍</span>
+        <span>Appliquer</span>
+      </button>
+    </form>
+  </div>
+
+  <!-- Tasks Grid -->
+  <div class="tasks-grid">
+    {% for task in tasks %}
+      <div class="task-card priority-{{ task.priority }}">
+        <div class="task-header">
+          <h2 class="task-title">{{ task.title }}</h2>
+          {% if task.status == 'done' %}
+            <span class="status-badge status-done">
+              <span>✓</span>
+              <span>Terminée</span>
+            </span>
+          {% elif task.status == 'in_progress' %}
+            <span class="status-badge status-in-progress">
+              <span>⏳</span>
+              <span>En cours</span>
+            </span>
+          {% else %}
+            <span class="status-badge status-todo">
+              <span>○</span>
+              <span>À faire</span>
+            </span>
+          {% endif %}
+        </div>
+
+        <div class="task-meta">
+          <div class="meta-item">
+            <span class="meta-icon">📅</span>
+            <strong>Échéance:</strong>
+            <span>{{ task.due_date|date:"d M Y"|default:"Non définie" }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-icon">⚡</span>
+            <strong>Priorité:</strong>
+            {% if task.priority == 'high' %}
+              <span class="priority-badge priority-high">🔴 Haute</span>
+            {% elif task.priority == 'medium' %}
+              <span class="priority-badge priority-medium">🔵 Moyenne</span>
+            {% else %}
+              <span class="priority-badge priority-low">⚪ Faible</span>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if task.description %}
+          <p class="task-description">{{ task.description|truncatewords:20 }}</p>
+        {% endif %}
+
+        <div class="task-actions">
+          <a class="btn btn-sm btn-edit" href="{% url 'task_update' task.pk %}">
+            <span>✏️</span>
+            <span>Modifier</span>
+          </a>
+          <a class="btn btn-sm btn-delete" href="{% url 'task_delete' task.pk %}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?');">
+            <span>🗑️</span>
+            <span>Supprimer</span>
+          </a>
+          <a class="btn btn-sm btn-toggle" href="{% url 'task_toggle_status' task.pk %}">
+            {% if task.status != 'done' %}
+              <span>✅</span>
+              <span>Terminer</span>
+            {% else %}
+              <span>↩️</span>
+              <span>Réactiver</span>
+            {% endif %}
+          </a>
+        </div>
+      </div>
+    {% empty %}
+      <div class="empty-state" style="grid-column: 1 / -1;">
+        <div class="empty-icon">📭</div>
+        <h2 class="empty-title">Aucune tâche trouvée</h2>
+        <p class="empty-text">Commencez par créer votre première tâche !</p>
+        <a href="{% url 'task_create' %}" class="btn btn-add" style="margin-top: 1.5rem; display: inline-flex;">
+          <span>➕</span>
+          <span>Créer une tâche</span>
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
